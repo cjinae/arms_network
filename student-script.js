@@ -22,8 +22,12 @@
  * Hint:
  * Use this.refreshViews() to reload the UI.
  */
+
 isis.Game.prototype.changeCity = function(newCity) {
   console.log('trying to change city to ' + newCity.name);
+  this.currentCity = newCity;
+  //console.log(this.currentCity);
+  this.refreshViews();
 }
 
 /*
@@ -38,6 +42,18 @@ isis.Game.prototype.changeCity = function(newCity) {
  */
 isis.Game.prototype.buyItem = function(item) {
   console.log('trying to buy ' + item.name);
+  this.buyingItem = item;
+  
+  var quantity = parseInt(prompt("What quantify of" + " " + item.name + " " + "do you want to purchase?"));
+  var confirmation = confirm("are you surrrreee?");
+  var totalPrice = quantity * item.currentPrice;
+  var agentMoney = this.agent.money
+  if (confirmation === true && agentMoney >= totalPrice) {
+    agentMoney = agentMoney - totalPrice;
+    this.agent.money = agentMoney;
+    console.log(this.agent.inventory.push(item, quantity));}
+  else { alert("You can't spend more than " + "$"+ agentMoney)
+  }
 }
 
 /**
@@ -57,6 +73,16 @@ isis.Game.prototype.buyItem = function(item) {
 isis.Game.prototype.sellItem = function(inventoryItem) {
   var value = inventoryItem.item.currentPrice * inventoryItem.quantity;
   console.log('trying to sell ' + inventoryItem.item.name + ', I have ' + inventoryItem.quantity + ' worth $' + value);
+  var quantity = parseInt(prompt("how many do you want to sell?"))
+  var totalPrice = quantity * inventoryItem.item.currentPrice
+  var confirmation = confirm("are you sure?")
+  var agentMoney = this.agent.money
+  if (confirmation === true && quantity <= inventoryItem.quantity) {
+      inventoryItem.quantity = (inventoryItem.quantity - quantity);
+      agentMoney = agentMoney + totalPrice;
+      this.agent.money = agentMoney;}
+  else { alert("You only have" + quantity + " " + "available to sell.")
+  }
 }
 
 
@@ -73,22 +99,35 @@ isis.Game.prototype.sellItem = function(inventoryItem) {
  * The bad thing needs to follow the same format as the temporary bad thing
  */
 isis.Game.prototype.initBadThings = function(badThings) {
-  badThings.push({
-    name: "Temporary bad thing!",
-    ohNoes: function(agent) {
-      alert("This is a demo bad thing, luckily nothing bad happened this time!");
-    }
-  });
+//   badThings.push({
+//     name: "Temporary bad thing!",
+//     ohNoes: function(agent) {
+//     alert("This is a demo bad thing, luckily nothing bad happened this time!");
+//    }
+//    });
   
   // Fill this one in with a new bad thing which could happen!
   // If you want, copy and paste it to make more bad things!
   badThings.push({
-    name: "Name your bad thing!",
+    name: "Bad things can happen",
     ohNoes: function(agent) {
-      // Your bad thing code goes here
-    }
+      alert("OHMEEGA. A bird just shat on you. You need a new shirt - $100");
+      console.log(agent.money);
+      agent.money = agent.money - 100;
+    }  
   });
   
+  badThings.push({
+    name: "Bad things can happen more than once",
+    ohNoes: function(agent) {
+      alert("You ate too much food, and now you need to buy tums - $5");
+      console.log(agent.money);
+      agent.money = agent.money - 5;
+    }  
+  });
+
+
+
 }
 
 /*************************/
@@ -106,7 +145,15 @@ isis.Game.prototype.initBadThings = function(badThings) {
  * If the player has more than $5000 then they should be ranked as a 'Double-0'.
  */
 isis.Agent.prototype.getRank = function(item) { 
-  return 'Agent';
+    if (this.money > 5000) {
+    return 'Double-0';
+  } else if (this.money > 1000) {
+    return 'Top Agent';
+  } else if (this.money > 500) {
+    return 'Agent';
+  } else {
+    return 'Rookie';
+  }
 }
 
 /*
@@ -118,8 +165,8 @@ isis.Agent.prototype.getRank = function(item) {
  * Use prompt() to get user input.
  */
 isis.Agent.prototype.init = function(item) { 
-  this.name = 'Sterling Archer'; // This should be set by the user
-  this.codename = 'Dutchess'; // This too
+  this.name = prompt("Wus your name?"); // This should be set by the user
+  this.codename = prompt("Wus your code name?"); // This too
 }
 
 
